@@ -7,7 +7,7 @@
   
   It is deployed  <a href=https://book-search-engine76954.herokuapp.com>here</a>.
 
-  ![screenshot](/Screenshot.jpg)
+  ![screenshot](/screenshot.jpg)
 
   ## Table of Contents
   * <a href="#installation">Installation</a>
