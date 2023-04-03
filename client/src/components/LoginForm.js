@@ -2,14 +2,14 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import {useMutation} from '@apollo/client';
-import {LOGIN_USER} from '../utils/mutations'
+import {LOGIN} from '../utils/mutations'
 import Auth from '../utils/auth';
 
 const LoginForm = () => {
   const [userFormData, setUserFormData] = useState({ email: '', password: '' });
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-  const [login] = useMutation(LOGIN_USER);
+  const [login] = useMutation(LOGIN);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -21,7 +21,8 @@ const LoginForm = () => {
 
     // check if form has everything (as per react-bootstrap docs)
     const form = event.currentTarget;
-    
+
+       
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
@@ -29,16 +30,20 @@ const LoginForm = () => {
 
     try {
       const response = await login({
-        variables: {...userFormData}});
+        variables: {email: userFormData.email,
+        password: userFormData.password}
+      
+      });
 
-      if (!response.ok) {
+      if (!response) {
         throw new Error('something went wrong!');
       }
 
-      const { token, user } = await response.json();
-      console.log(user);
+      const { token} = await response.data.login;
       Auth.login(token);
-    } catch (err) {
+
+      
+      } catch (err) {
       console.error(err);
       setShowAlert(true);
     }

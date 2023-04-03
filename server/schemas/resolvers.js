@@ -35,12 +35,15 @@ const resolvers = {
       }
 
       const correctPw = await user.isCorrectPassword(password);
+      console.log(correctPw);
 
       if (!correctPw) {
         throw new AuthenticationError('Incorrect password!');
       }
 
       const token = signToken(user);
+      console.log(token);
+      console.log(user);
       return { token, user };
     },
 
