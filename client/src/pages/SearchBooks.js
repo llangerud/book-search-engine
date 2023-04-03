@@ -33,7 +33,7 @@ const SearchBooks = () => {
       console.log(error);
     },
   });
-  
+
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
@@ -50,12 +50,14 @@ const SearchBooks = () => {
 
       const { items } = await response.json();
 
+      
       const bookData = items.map((book) => ({
         bookId: book.id,
         authors: book.volumeInfo.authors || ['No author to display'],
         title: book.volumeInfo.title,
         description: book.volumeInfo.description,
         image: book.volumeInfo.imageLinks?.thumbnail || '',
+        link: book.selfLink || '',
       }));
 
       setSearchedBooks(bookData);
@@ -69,10 +71,11 @@ const SearchBooks = () => {
 
     const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
 
-     const token = Auth.loggedIn() ? Auth.getToken() : null;
+    const token = Auth.loggedIn() ? Auth.getToken() : null;
+    console.log(Auth.getProfile().data._id);
+    console.log(token);
+    console.log(bookToSave);
 
-
-    
 if (!token) {
       console.log('no token')
       return false;
@@ -82,18 +85,24 @@ if (!token) {
      
       const response = await saveBook({
           variables: {
-            authors: bookToSave.authors,
-            description: bookToSave.description,
-            title: bookToSave.title,
-            bookId: bookToSave.bookId,
-            image: bookToSave.image,
-          
-            
+          book: {
+          authors: bookToSave.authors,
+          description: bookToSave.description,
+          title: bookToSave.title,
+          bookId: bookToSave.bookId,
+          image: bookToSave.image,
+          link: bookToSave.link
           }
-        }
-      );
+       
+            },
+            context: {
+              headers: {
+                authorization: `Bearer ${token}`
+              }
+            }
+                  });
 
-      if (!response.ok) {
+      if (!response) {
         throw new Error('something went wrong!');
       }
 
@@ -106,11 +115,11 @@ if (!token) {
 
   return (
     <>
-      <div fluid className='text-light bg-dark pt-5'>
+      <div className='text-light bg-dark pt-5 fluid=true'>
         <Container>
           <h1>Search for Books!</h1>
           <Form onSubmit={handleFormSubmit}>
-            {/* /* <Form.Row> */}
+            <Form.Row>
               <Col xs={12} md={8}>
                 <Form.Control
                   name='searchInput'
@@ -126,7 +135,7 @@ if (!token) {
                   Submit Search
                 </Button>
               </Col>
-            {/* </Form.Row> */}
+            </Form.Row>
           </Form>
         </Container>
       </div>

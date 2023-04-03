@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+// import React, { useState, useEffect } from 'react';
 import {
   Container,
   Card,
@@ -15,11 +15,15 @@ import { removeBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
   
-  const {userData } = useQuery(GET_ME);
-  const [removeBook, {error}] = useMutation(REMOVE_BOOK);
+  const {loading, error, data} = useQuery(GET_ME);
+
+  const [removeBook] = useMutation(REMOVE_BOOK);
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId) => {
+
+    console.log(bookId);
+    
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
     if (!token) {
@@ -27,20 +31,31 @@ const SavedBooks = () => {
     }
 
     try {
-      const {response} = await removeBook({
+      const response = await removeBook({
         variables: {bookId},
+        context: {
+          headers: {
+            authorization: `Bearer ${token}`
+          }
+        }
       })
 
-      if (!response.ok) {
+      if (!response) {
         throw new Error(error);
       }
-
+      console.log(response);
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
+      console.log('removed book')
     } catch (err) {
       console.error(err);
     }
   };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const userData = data.me;
 
   
   return (
